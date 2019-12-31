@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "36618168483",
+    "firebase_url": "https://sickbay-final-bb666.firebaseio.com",
+    "project_id": "sickbay-final-bb666",
+    "storage_bucket": "sickbay-final-bb666.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:36618168483:android:72775a1d79ffee5e",
+        "android_client_info": {
+          "package_name": "com.example.vishal.sickbay_final"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "36618168483-s89ssuj98bbr171daogf7f22mm970dp0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.vishal.sickbay_final",
+            "certificate_hash": "13ffbd234c78c749436267aee14aad3d845c0cad"
+          }
+        },
+        {
+          "client_id": "36618168483-lu6ie1njnum4r1bckpn96bh1r5c2uotj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD5VTEQvbfdbAz47DITE_sDTICW6Jk75ek"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "36618168483-lu6ie1njnum4r1bckpn96bh1r5c2uotj.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

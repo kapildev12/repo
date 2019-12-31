@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.vishal.ambulance_surveillance">
+
+    <uses-permission-sdk-23 android:name="android.permission.Internet" />
+
+    <!--
+         The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
+         Google Maps Android API v2, but you must specify either coarse or fine
+         location permissions for the 'MyLocation' functionality. 
+    -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/icon_launch"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme"
+        android:name="com.example.vishal.ambulance_surveillance.AmbulanceApplication">
+        <activity android:name="com.example.vishal.ambulance_surveillance.SplashActivity"
+            android:launchMode="singleTask">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name="com.example.vishal.ambulance_surveillance.LoginRegistrationActivity" />
+        <activity
+            android:name="com.example.vishal.ambulance_surveillance.Navigation"
+            android:label="Ambulance Surveillance"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name="com.example.vishal.ambulance_surveillance.profile"
+            android:label="Edit Profile"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".Notification"
+            android:label="Notification"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".Services"
+            android:label="Services"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".gethelp"
+            android:label="Help"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name="com.example.vishal.ambulance_surveillance.mlo"
+            android:label="MLO Form"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name="com.example.vishal.ambulance_surveillance.Contactus"
+            android:label="Contact Info"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name="com.example.vishal.ambulance_surveillance.Rating"
+            android:label="Rate us "
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name="com.example.vishal.ambulance_surveillance.InjuryType"></activity>
+        <activity android:name="com.example.vishal.ambulance_surveillance.FractureInjury"></activity>
+        <activity android:name="com.example.vishal.ambulance_surveillance.HeadInjury"></activity>
+        <activity android:name="com.example.vishal.ambulance_surveillance.HeartInjury"></activity>
+        <activity android:name="com.example.vishal.ambulance_surveillance.NeuralInjury"></activity>
+        <activity android:name="com.example.vishal.ambulance_surveillance.ParalysisInjury"></activity>
+        <activity android:name="com.example.vishal.ambulance_surveillance.SkinInjury"></activity>
+
+
+
+
+
+
+
+
+        <!--
+             The API key for Google Maps-based APIs is defined as a string resource.
+             (See the file "res/values/google_maps_api.xml").
+             Note that the API key is linked to the encryption key used to sign the APK.
+             You need a different API key for each encryption key, including the release key that is used to
+             sign the APK for publishing.
+             You can define the keys for the debug and release targets in src/debug/ and src/release/. 
+        -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="@string/google_maps_key" />
+
+        <activity
+            android:name="com.example.vishal.ambulance_surveillance.MapsActivity"
+            android:label="@string/title_activity_maps" />
+        <!--
+ ATTENTION: This was auto-generated to add Google Play services to your project for
+     App Indexing.  See https://g.co/AppIndexing/AndroidStudio for more information.
+        -->
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+
+        <activity android:name="com.example.vishal.ambulance_surveillance.Registration" />
+        <activity android:name="com.example.vishal.ambulance_surveillance.Contactthroughmail" />
+        <activity android:name="com.example.vishal.ambulance_surveillance.NearbyPlaces" />
+        <activity android:name="com.example.vishal.ambulance_surveillance.CustomerCall" />
+
+        <service android:name="com.example.vishal.ambulance_surveillance.Service.MyFirebaseIdService">
+            <intent-filter>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
+            </intent-filter>
+        </service>
+        <service android:name="com.example.vishal.ambulance_surveillance.Service.MyFirebaseMessaging">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+        <activity
+            android:name="com.example.vishal.ambulance_surveillance.DriverTracking"
+            android:label="@string/title_activity_driver_tracking" />
+        <activity android:name="com.example.vishal.ambulance_surveillance.Forgot"
+            android:screenOrientation="portrait"/>
+    </application>
+
+</manifest>
