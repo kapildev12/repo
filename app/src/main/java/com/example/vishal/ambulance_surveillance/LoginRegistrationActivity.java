@@ -161,10 +161,10 @@ public class LoginRegistrationActivity extends AppCompatActivity implements View
         auth.signInWithEmailAndPassword(user, pasw).addOnSuccessListener(new OnSuccessListener<AuthResult>() {
             @Override
             public void onSuccess(AuthResult authResult) {
-                mDialog.dismiss();
                 FirebaseDatabase.getInstance().getReference(Common.user_drivers).child(FirebaseAuth.getInstance().getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
+                        mDialog.dismiss();
                         Common.currentUser = dataSnapshot.getValue(User.class);
                         startActivity(new Intent(LoginRegistrationActivity.this, Navigation.class));
                         finish();
@@ -172,7 +172,7 @@ public class LoginRegistrationActivity extends AppCompatActivity implements View
 
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
-
+                        mDialog.dismiss();
                     }
                 });
 

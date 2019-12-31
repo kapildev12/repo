@@ -47,12 +47,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
         </TextView>
-        <ImageView
-            android:src="@drawable/ic_chevron_right_black_24dp"
-            android:layout_width="30dp"
-            android:layout_alignEnd="@id/nametext"
-            android:layout_centerVertical="true"
-            android:layout_height="30dp" />
 
     </RelativeLayout>
     <RelativeLayout
@@ -75,12 +69,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
         </TextView>
-        <ImageView
-            android:src="@drawable/ic_chevron_right_black_24dp"
-            android:layout_width="30dp"
-            android:layout_alignEnd="@id/emailtext"
-            android:layout_centerVertical="true"
-            android:layout_height="30dp" />
 
     </RelativeLayout>
     <RelativeLayout
@@ -103,12 +91,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
         </TextView>
-        <ImageView
-            android:src="@drawable/ic_chevron_right_black_24dp"
-            android:layout_width="30dp"
-            android:layout_alignEnd="@id/phonetext"
-            android:layout_centerVertical="true"
-            android:layout_height="30dp" />
 
     </RelativeLayout>
     <RelativeLayout

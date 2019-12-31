@@ -679,9 +679,9 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback,
             }
         }
 
-        public class DownloadUrl {
+        class DownloadUrl {
 
-            public String readUrl(String strUrl) throws IOException {
+            String readUrl(String strUrl) throws IOException {
                 String data = "";
                 InputStream iStream = null;
                 HttpURLConnection urlConnection = null;
