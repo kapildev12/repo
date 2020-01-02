@@ -3,7 +3,10 @@ package com.example.vishal.ambulance_surveillance;
 import android.Manifest;
 import android.animation.ValueAnimator;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -13,6 +16,8 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -87,8 +92,8 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback,
     private GoogleApiClient mGoogleApiClient;
 
 
-    private static int UPDATE_INTERVAL = 5000;
-    private static int FATEST_INTERVAL = 3000;
+    private static int UPDATE_INTERVAL = 10000;
+    private static int FATEST_INTERVAL = 5000;
     private static int DISPLACEMENT = 10;
 
     DatabaseReference drivers;
@@ -211,7 +216,7 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback,
                     displayLocation();
                     Snackbar.make(view, "You are Online", Snackbar.LENGTH_SHORT).show();
                 } else {
-
+                    hospitalsShown = false;
                     FirebaseDatabase.getInstance().goOffline();
                     stopLocationUpdate();
                     mCurrent.remove();
@@ -507,6 +512,8 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback,
         LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
     }
 
+    private boolean hospitalsShown;
+
     private void displayLocation() {
         if (getContext() == null || ActivityCompat.checkSelfPermission(this.getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this.getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
@@ -542,14 +549,15 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback,
                         //move camera to this position
                         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), 15.0f));
 
-                       /* mMap.clear();
-                        String url = getUrl(latitude, longitude);
-                        Object[] DataTransfer = new Object[2];
-                        DataTransfer[0] = mMap;
-                        DataTransfer[1] = url;
-                        Log.d("onClick", url);
-                        GetNearbyPlacesData getNearbyPlacesData = new GetNearbyPlacesData();
-                        getNearbyPlacesData.execute(DataTransfer);*/
+                        if (!hospitalsShown) {
+                            hospitalsShown = true;
+                            String url = getUrl(latitude, longitude);
+                            Object[] DataTransfer = new Object[2];
+                            //DataTransfer[0] = mMap;
+                            DataTransfer[1] = url;
+                            GetNearbyPlacesData getNearbyPlacesData = new GetNearbyPlacesData();
+                            getNearbyPlacesData.execute(DataTransfer);
+                        }
 
                     }
                 });
@@ -560,8 +568,11 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback,
 
     }
 
+    //https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=24.8467,67.0558&radius=10000&types=hospital&sensor=true&fields=formatted_address,name,geometry&key=AIzaSyBJvlD3dqnz42r9obhEClc2dEJAdXt9IK8
+
     private String getUrl(double latitude, double longitude) {
-        return "https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=hospital&inputtype=textquery&locationbias=point:" + latitude + "," + longitude + "&fields=photos,formatted_address,name,opening_hours,geometry&key=" + getResources().getString(R.string.google_direction_api);
+        return "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=" + latitude + "," + longitude + "&radius=10000&types=hospital&sensor=true&fields=formatted_address,name,geometry&key=" + getResources().getString(R.string.google_direction_api);
+        //    return "https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=hospital&inputtype=textquery&locationbias=point:" + latitude + "," + longitude + "&fields=formatted_address,name,geometry&key=" + getResources().getString(R.string.google_direction_api);
     }
 
 
@@ -611,14 +622,13 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback,
     class GetNearbyPlacesData extends AsyncTask<Object, String, String> {
 
         String googlePlacesData;
-        GoogleMap mMap;
         String url;
 
         @Override
         protected String doInBackground(Object... params) {
             try {
                 Log.d("GetNearbyPlacesData", "doInBackground entered");
-                mMap = (GoogleMap) params[0];
+                //   mMap = (GoogleMap) params[0];
                 url = (String) params[1];
                 DownloadUrl downloadUrl = new DownloadUrl();
                 googlePlacesData = downloadUrl.readUrl(url);
@@ -647,16 +657,23 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback,
                 double lat = Double.parseDouble(googlePlace.get("lat"));
                 double lng = Double.parseDouble(googlePlace.get("lng"));
                 String placeName = googlePlace.get("place_name");
-                String vicinity = googlePlace.get("vicinity");
                 LatLng latLng = new LatLng(lat, lng);
                 markerOptions.position(latLng);
-                markerOptions.title(placeName + " : " + vicinity);
+                markerOptions.title(placeName);
+                markerOptions.icon(BitmapDescriptorFactory.fromBitmap(getBitmapFromVectorDrawable(R.drawable.ic_medical_app)));
                 mMap.addMarker(markerOptions);
-                markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
-                //move map camera
-                mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-                mMap.animateCamera(CameraUpdateFactory.zoomTo(11));
             }
+        }
+
+        public Bitmap getBitmapFromVectorDrawable(int drawableId) {
+            Drawable drawable = ContextCompat.getDrawable(getContext(), drawableId);
+            drawable = (DrawableCompat.wrap(drawable)).mutate();
+            Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(),
+                    drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+            Canvas canvas = new Canvas(bitmap);
+            drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+            drawable.draw(canvas);
+            return bitmap;
         }
 
         class DownloadUrl {
