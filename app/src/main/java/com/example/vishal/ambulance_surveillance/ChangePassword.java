@@ -36,12 +36,17 @@ public class ChangePassword extends AppCompatActivity {
         btChange = (AppCompatButton) findViewById(R.id.btChange);
 
         btChange.setOnClickListener(view -> {
-            if (!etCurrentPass.getText().toString().equals(Paper.book().read(Common.PasField))) {
+            String newpass = etNewPass.getText().toString();
+            if (!etCurrentPass.getText().toString().equals(Paper.book().read(Common.PasField)))
                 showToast("Incorrect current password");
-            } else if (!etNewPass.getText().toString().equals(etConfirmPass.getText().toString())) {
-                showToast("New pass and confirm pass does not match");
+            else if (newpass.isEmpty())
+                showToast("New password cannot be empty");
+            else if (newpass.length() <6)
+                showToast("New password should be at least 6 characters long");
+            else if (!newpass.equals(etConfirmPass.getText().toString())) {
+                showToast("New password and confirm password does not match");
             } else
-                changePass(etNewPass.getText().toString());
+                changePass(newpass);
         });
     }
 

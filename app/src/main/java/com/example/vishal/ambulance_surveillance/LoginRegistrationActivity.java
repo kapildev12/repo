@@ -52,7 +52,6 @@ public class LoginRegistrationActivity extends AppCompatActivity implements View
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //    CalligraphyConfig.initDefault(new CalligraphyConfig.Builder().setDefaultFontPath("fonts/Arkhip_font.ttf").setFontAttrId(R.attr.fontPath).build());
 
         setContentView(R.layout.login_registration);
         findViewById(R.id.buttonUp).setOnClickListener(this);

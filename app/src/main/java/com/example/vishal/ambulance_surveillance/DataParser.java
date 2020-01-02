@@ -10,9 +10,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-/**
- * Created by Ahmed on 3/7/2018.
- */
 
 public class DataParser{
 
