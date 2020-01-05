@@ -20,6 +20,9 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class Registration extends AppCompatActivity implements View.OnClickListener{
 
     EditText reg_phone,reg_password,reg_Name,reg_email;
@@ -105,6 +108,9 @@ public class Registration extends AppCompatActivity implements View.OnClickListe
                 userAdd.setPassword(password);
                 userAdd.setEmail(email);
                 userAdd.setName(name);
+                Map<String, Object> map = new HashMap<>();
+                map.put(email.replace(".",""), mAuth.getInstance().getCurrentUser().getUid());
+                FirebaseDatabase.getInstance().getReference("DriverUid").updateChildren(map);
                 users.child(mAuth.getInstance().getCurrentUser().getUid()).setValue(userAdd).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
