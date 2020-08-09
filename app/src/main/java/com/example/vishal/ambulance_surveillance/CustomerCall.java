@@ -29,7 +29,7 @@ import retrofit2.Response;
 
 public class CustomerCall extends AppCompatActivity {
 
-    TextView textTime,textDistance, textAddress;
+    TextView textName, textTime,textDistance, textAddress;
     MediaPlayer mediaPlayer;
     Button accept,cancel;
 
@@ -49,6 +49,7 @@ public class CustomerCall extends AppCompatActivity {
         textAddress = (TextView)findViewById(R.id.TextAddress);
         textDistance = (TextView)findViewById(R.id.TextDistance);
         textTime = (TextView)findViewById(R.id.TextTime);
+        textName = (TextView)findViewById(R.id.TextName);
 
         accept = (Button) findViewById(R.id.accept);
         cancel = (Button) findViewById(R.id.cancel);
@@ -88,6 +89,7 @@ public class CustomerCall extends AppCompatActivity {
              lat=getIntent().getDoubleExtra("lat",-1.0);
              lng=getIntent().getDoubleExtra("lng",-1.0);
              CustomerId = getIntent().getStringExtra("customer");
+             textName.setText(getIntent().getStringExtra("name"));
              getDirection(lat,lng);
         }
 
