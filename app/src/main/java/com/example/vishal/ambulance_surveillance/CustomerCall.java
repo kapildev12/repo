@@ -2,8 +2,8 @@ package com.example.vishal.ambulance_surveillance;
 
 import android.content.Intent;
 import android.media.MediaPlayer;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -18,6 +18,7 @@ import com.example.vishal.ambulance_surveillance.Models.Sender;
 import com.example.vishal.ambulance_surveillance.Models.Token;
 import com.example.vishal.ambulance_surveillance.Remote.IFCMService;
 import com.example.vishal.ambulance_surveillance.Remote.IGoogleAPI;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -29,27 +30,28 @@ import retrofit2.Response;
 
 public class CustomerCall extends AppCompatActivity {
 
-    TextView textName, textTime,textDistance, textAddress;
+    TextView textName, textTime, textDistance, textAddress;
     MediaPlayer mediaPlayer;
-    Button accept,cancel;
+    Button accept, cancel;
 
     IGoogleAPI mServices;
     IFCMService mFCMService;
     String CustomerId;
 
-    double lat,lng;
+    double lat, lng;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_customer_call);
 
-        mServices= Common.getGoogleAPI();
+        mServices = Common.getGoogleAPI();
         mFCMService = Common.getFCMService();
 
-        textAddress = (TextView)findViewById(R.id.TextAddress);
-        textDistance = (TextView)findViewById(R.id.TextDistance);
-        textTime = (TextView)findViewById(R.id.TextTime);
-        textName = (TextView)findViewById(R.id.TextName);
+        textAddress = (TextView) findViewById(R.id.TextAddress);
+        textDistance = (TextView) findViewById(R.id.TextDistance);
+        textTime = (TextView) findViewById(R.id.TextTime);
+        textName = (TextView) findViewById(R.id.TextName);
 
         accept = (Button) findViewById(R.id.accept);
         cancel = (Button) findViewById(R.id.cancel);
@@ -58,8 +60,7 @@ public class CustomerCall extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                if(!TextUtils.isEmpty(CustomerId))
-                {
+                if (!TextUtils.isEmpty(CustomerId)) {
                     cancelBooking(CustomerId);
                 }
             }
@@ -69,8 +70,7 @@ public class CustomerCall extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                if(!TextUtils.isEmpty(CustomerId))
-                {
+                if (!TextUtils.isEmpty(CustomerId)) {
                     AcceptBooking(CustomerId);
                 }
 
@@ -78,22 +78,19 @@ public class CustomerCall extends AppCompatActivity {
             }
         });
 
-        mediaPlayer = MediaPlayer.create(this,R.raw.uberbeep);
+        mediaPlayer = MediaPlayer.create(this, R.raw.uberbeep);
         mediaPlayer.setLooping(true);
         mediaPlayer.start();
 
 
-        if(getIntent()!=null)
-        {
+        if (getIntent() != null) {
 
-             lat=getIntent().getDoubleExtra("lat",-1.0);
-             lng=getIntent().getDoubleExtra("lng",-1.0);
-             CustomerId = getIntent().getStringExtra("customer");
-             textName.setText(getIntent().getStringExtra("name"));
-             getDirection(lat,lng);
+            lat = getIntent().getDoubleExtra("lat", -1.0);
+            lng = getIntent().getDoubleExtra("lng", -1.0);
+            CustomerId = getIntent().getStringExtra("customer");
+            textName.setText(getIntent().getStringExtra("name"));
+            getDirection(lat, lng);
         }
-
-
 
 
     }
@@ -101,22 +98,26 @@ public class CustomerCall extends AppCompatActivity {
     private void AcceptBooking(String customerId) {
 
 
-        Intent intent = new Intent(CustomerCall.this,DriverTracking.class);
-        intent.putExtra("lat",lat);
-        intent.putExtra("lng",lng);
-        intent.putExtra("CustomerId",CustomerId);
+        Intent intent = new Intent(CustomerCall.this, DriverTracking.class);
+        intent.putExtra("lat", lat);
+        intent.putExtra("lng", lng);
+        intent.putExtra("CustomerId", CustomerId);
         Token token = new Token(CustomerId);
 
-        Notification notification= new Notification("Accept", "Driver has Accept your request");
-        Sender sender = new Sender(token.getToken(),notification);
+        Notification notification = new Notification("Accept", "Your Ambulance is on your way;"
+                + Common.currentUser.getName()
+                + ";" + Common.currentUser.getPhone()
+                + ";" + Common.mLastLocation.getLatitude()
+                + ";" + Common.mLastLocation.getLongitude()
+                + ";" + FirebaseInstanceId.getInstance().getToken());
+        Sender sender = new Sender(token.getToken(), notification);
 
 
         mFCMService.sendMessage(sender).enqueue(new Callback<FCMResponse>() {
             @Override
             public void onResponse(Call<FCMResponse> call, Response<FCMResponse> response) {
 
-                if(response.body().success==1)
-                {
+                if (response.body().success == 1) {
 
                     Toast.makeText(CustomerCall.this, "Accepted", Toast.LENGTH_SHORT).show();
                     finish();
@@ -134,15 +135,14 @@ public class CustomerCall extends AppCompatActivity {
 
     private void cancelBooking(String customerId) {
         Token token = new Token(CustomerId);
-        Notification notification= new Notification("Cancel", "Driver has cancelled your request");
-        Sender sender = new Sender(token.getToken(),notification);
+        Notification notification = new Notification("Cancel", "Driver has cancelled your request");
+        Sender sender = new Sender(token.getToken(), notification);
 
         mFCMService.sendMessage(sender).enqueue(new Callback<FCMResponse>() {
             @Override
             public void onResponse(Call<FCMResponse> call, Response<FCMResponse> response) {
 
-                if(response.body().success==1)
-                {
+                if (response.body().success == 1) {
 
                     Toast.makeText(CustomerCall.this, "Cancelled", Toast.LENGTH_SHORT).show();
                     finish();
@@ -156,18 +156,18 @@ public class CustomerCall extends AppCompatActivity {
         });
     }
 
-    private void getDirection(double lat,double lng) {
+    private void getDirection(double lat, double lng) {
 
         String requestApi = null;
-        try{
-            requestApi = "https://maps.googleapis.com/maps/api/directions/json?"+
-                    "mode=driving&"+
-                    "transit_routing_preference=less_driving&"+
-                    "origin="+ Common.mLastLocation.getLatitude()+","+Common.mLastLocation.getLongitude()+"&"+
-                    "destination="+lat+","+lng+"&"+
-                    "key="+getResources().getString(R.string.google_direction_api);
+        try {
+            requestApi = "https://maps.googleapis.com/maps/api/directions/json?" +
+                    "mode=driving&" +
+                    "transit_routing_preference=less_driving&" +
+                    "origin=" + Common.mLastLocation.getLatitude() + "," + Common.mLastLocation.getLongitude() + "&" +
+                    "destination=" + lat + "," + lng + "&" +
+                    "key=" + getResources().getString(R.string.google_direction_api);
 
-            Log.d("SICKBAY",requestApi);
+            Log.d("SICKBAY", requestApi);
 
             mServices.getPath(requestApi).enqueue(new Callback<String>() {
                 @Override
@@ -181,7 +181,7 @@ public class CustomerCall extends AppCompatActivity {
                         JSONArray legs = object.getJSONArray("legs");
                         JSONObject legsobject = legs.getJSONObject(0);
 
-                       //Distance
+                        //Distance
                         JSONObject distance = legsobject.getJSONObject("distance");
                         textDistance.setText(distance.getString("text"));
 
@@ -201,11 +201,10 @@ public class CustomerCall extends AppCompatActivity {
 
                 @Override
                 public void onFailure(Call<String> call, Throwable throwable) {
-                    Toast.makeText(CustomerCall.this, ""+throwable.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(CustomerCall.this, "" + throwable.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
 
         }

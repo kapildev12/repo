@@ -84,25 +84,20 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback,
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener {
 
-    private GoogleMap mMap;
     //play services
     private static final int MY_PERMISSION_REQUEST_CODE = 7000;
     private static final int PLAY_SERVICE_RES_REQUEST = 7001;
-    private LocationRequest mLocationRequest;
-    private GoogleApiClient mGoogleApiClient;
-
-
     private static int UPDATE_INTERVAL = 10000;
     private static int FATEST_INTERVAL = 5000;
     private static int DISPLACEMENT = 10;
-
     DatabaseReference drivers;
     GeoFire geofire;
-
     Marker mCurrent;
-
-
     MaterialAnimatedSwitch loc_switch;
+    DatabaseReference onlineRef, currentUserRef;
+    private GoogleMap mMap;
+    private LocationRequest mLocationRequest;
+    private GoogleApiClient mGoogleApiClient;
     //car animation
     private List<LatLng> polyLineList;
     private Marker CarMarker;
@@ -111,18 +106,6 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback,
     private Handler handler;
     private LatLng startPosition, endPostition, currentPosition;
     private int index, next;
-    // private Button btnGo;
-    // private PlaceAutocompleteFragment places;
-    //AutocompleteFilter typefilter;
-    private String destination;
-    private PolylineOptions polylineOptions, blackPolylineOptions;
-    private Polyline blackPolyline, greyPolyline;
-
-    private IGoogleAPI mServices;
-
-
-    DatabaseReference onlineRef, currentUserRef;
-
     Runnable drawPathRunnable = new Runnable() {
         @Override
         public void run() {
@@ -165,6 +148,14 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback,
 
         }
     };
+    // private Button btnGo;
+    // private PlaceAutocompleteFragment places;
+    //AutocompleteFilter typefilter;
+    private String destination;
+    private PolylineOptions polylineOptions, blackPolylineOptions;
+    private Polyline blackPolyline, greyPolyline;
+    private IGoogleAPI mServices;
+    private boolean hospitalsShown;
 
     private float getBearing(LatLng startPostion, LatLng endPosition) {
         double lat = Math.abs(startPostion.latitude - endPosition.latitude);
@@ -219,7 +210,8 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback,
                     hospitalsShown = false;
                     FirebaseDatabase.getInstance().goOffline();
                     stopLocationUpdate();
-                    mCurrent.remove();
+                    if (mCurrent != null)
+                        mCurrent.remove();
                     mMap.clear();
                     if (handler != null) {
                         handler.removeCallbacks(drawPathRunnable);
@@ -275,7 +267,6 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback,
         Token token = new Token(FirebaseInstanceId.getInstance().getToken());
         tokens.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).setValue(token);
     }
-
 
     @Nullable
     @Override
@@ -386,6 +377,7 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback,
 
         }
     }
+    //press ctrl+O for runtime permission function override
 
     private List decodePoly(String encoded) {
 
@@ -419,8 +411,6 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback,
         }
         return poly;
     }
-    //press ctrl+O for runtime permission function override
-
 
     /**
      * Callback for the result from requesting permissions. This method
@@ -511,8 +501,6 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback,
         }
         LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
     }
-
-    private boolean hospitalsShown;
 
     private void displayLocation() {
         if (getContext() == null || ActivityCompat.checkSelfPermission(this.getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this.getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {

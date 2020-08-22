@@ -8,14 +8,11 @@ import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 public class AmbulanceApplication extends Application {
 
-    @Override
-    protected void attachBaseContext(Context base) {
-        super.attachBaseContext(CalligraphyContextWrapper.wrap(base));
-    }
+
 
     @Override
     public void onCreate() {
         super.onCreate();
-        CalligraphyConfig.initDefault(new CalligraphyConfig.Builder().setDefaultFontPath("fonts/Exo-Medium.ttf").setFontAttrId(R.attr.fontPath).build());
+       // CalligraphyConfig.initDefault(new CalligraphyConfig.Builder().setDefaultFontPath("fonts/Exo-Medium.ttf").setFontAttrId(R.attr.fontPath).build());
     }
 }

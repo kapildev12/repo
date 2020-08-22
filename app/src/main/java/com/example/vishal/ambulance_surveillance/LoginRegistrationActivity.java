@@ -45,10 +45,6 @@ public class LoginRegistrationActivity extends AppCompatActivity implements View
     private FirebaseDatabase db;
     private DatabaseReference usersRef;
 
-    @Override
-    protected void attachBaseContext(Context newBase) {
-        super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
-    }
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

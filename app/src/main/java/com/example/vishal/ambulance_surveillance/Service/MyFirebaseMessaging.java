@@ -17,14 +17,19 @@ public class MyFirebaseMessaging extends FirebaseMessagingService {
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
 
-        LatLng customer_location = new Gson().fromJson(remoteMessage.getNotification().getBody(), LatLng.class);
+        if (remoteMessage.getNotification().getTitle().equals("Cancel")) {
+            Intent intent = new Intent("Cancel");
+            getApplicationContext().sendBroadcast(intent);
 
-        Intent intent = new Intent(getBaseContext(), CustomerCall.class);
-        intent.putExtra("lat", customer_location.latitude);
-        intent.putExtra("lng", customer_location.longitude);
-        intent.putExtra("customer", remoteMessage.getNotification().getTitle());
-        intent.putExtra("name", remoteMessage.getNotification().getTag());
-        startActivity(intent);
+        } else {
+            LatLng customer_location = new Gson().fromJson(remoteMessage.getNotification().getBody(), LatLng.class);
+            Intent intent = new Intent(getBaseContext(), CustomerCall.class);
+            intent.putExtra("lat", customer_location.latitude);
+            intent.putExtra("lng", customer_location.longitude);
+            intent.putExtra("customer", remoteMessage.getNotification().getTitle());
+            intent.putExtra("name", remoteMessage.getNotification().getTag());
+            startActivity(intent);
+        }
 
     }
 }
