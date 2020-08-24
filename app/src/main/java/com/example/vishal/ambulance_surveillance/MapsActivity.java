@@ -468,8 +468,6 @@ public class MapsActivity extends Fragment implements OnMapReadyCallback,
         mLocationRequest.setFastestInterval(FATEST_INTERVAL);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         mLocationRequest.setSmallestDisplacement(DISPLACEMENT);
-
-
     }
 
     private void buildGoogleApiClient() {

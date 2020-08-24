@@ -43,8 +43,6 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.Circle;
-import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -87,11 +85,11 @@ public class DriverTracking extends FragmentActivity implements OnMapReadyCallba
     private LocationRequest mLocationRequest;
     private GoogleApiClient mGoogleApiClient;
     private Polyline direction;
-    private Circle riderMarker;
     private Marker driverMarker;
     private Button startTrip;
     private Button destByNear;
     private Button destByInjury;
+    private Destination destination;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -181,10 +179,9 @@ public class DriverTracking extends FragmentActivity implements OnMapReadyCallba
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        riderMarker = mMap.addCircle(new CircleOptions().center(new LatLng(riderLat, riderLng)).radius(50).strokeColor(Color.BLUE).fillColor(0x220000ff).strokeWidth(5.0f));
 
         geoFire = new GeoFire(FirebaseDatabase.getInstance().getReference(Common.drivers));
-        GeoQuery geoQuery = geoFire.queryAtLocation(new GeoLocation(riderLat, riderLng), 0.05f);
+        GeoQuery geoQuery = geoFire.queryAtLocation(new GeoLocation(riderLat, riderLng), 0.01f);
         geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
             @Override
             public void onKeyEntered(String key, GeoLocation location) {
@@ -204,12 +201,10 @@ public class DriverTracking extends FragmentActivity implements OnMapReadyCallba
 
             @Override
             public void onGeoQueryReady() {
-
             }
 
             @Override
             public void onGeoQueryError(DatabaseError error) {
-
             }
         });
 
@@ -221,16 +216,17 @@ public class DriverTracking extends FragmentActivity implements OnMapReadyCallba
         startTrip.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startTrip.setVisibility(View.INVISIBLE);
-                destByInjury.setVisibility(View.VISIBLE);
+                Intent intent = new Intent(DriverTracking.this, DestinationActivity.class);
+                startActivityForResult(intent, 1);
+             /*   startTrip.setVisibility(View.GONE);
+                destByInjury.setVisibility(View.GONE);
                 destByNear.setVisibility(View.VISIBLE);
 
                 destByNear.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Intent intent = new Intent(DriverTracking.this, NearbyPlaces.class);
-                        startActivity(intent);
-                        finish();
+                        Intent intent = new Intent(DriverTracking.this, DestinationActivity.class);
+                        startActivityForResult(intent, 1);
                     }
                 });
                 destByInjury.setOnClickListener(new View.OnClickListener() {
@@ -238,12 +234,75 @@ public class DriverTracking extends FragmentActivity implements OnMapReadyCallba
                     public void onClick(View v) {
                         Intent intent = new Intent(DriverTracking.this, InjuryType.class);
                         startActivity(intent);
-                        finish();
                     }
-                });
+                });*/
             }
         });
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK && requestCode == 1 && data != null) {
+            sendStartedNotification(customerId);
+            Toast.makeText(this, "Trip started", Toast.LENGTH_LONG).show();
+            Destination destination = data.getParcelableExtra("destination");
+            this.destination = destination;
+            if (direction != null)
+                direction.remove();
+            getDirection(destination.getLat(), destination.getLng());
+            startTrip.setText("End trip");
+            startTrip.setOnClickListener(v -> {
+                sendEndedNotification(customerId);
+                Toast.makeText(this, "Trip ended! Please take patient to hospital!", Toast.LENGTH_LONG).show();
+                finish();
+            });
+
+            mMap.addMarker(new MarkerOptions()
+                    .position(new LatLng(destination.getLat(), destination.getLng()))
+                    .title(destination.getName())
+                    .icon(BitmapDescriptorFactory.defaultMarker()));
+        }
+    }
+
+    private void sendStartedNotification(String customerId) {
+
+        Notification notification = new Notification("Started", "Your trip is started!");
+        Sender send = new Sender(customerId, notification);
+
+
+        mFCMService.sendMessage(send).enqueue(new Callback<FCMResponse>() {
+            @Override
+            public void onResponse(@NonNull Call<FCMResponse> call, @NonNull Response<FCMResponse> response) {
+
+            }
+
+            @Override
+            public void onFailure(Call<FCMResponse> call, Throwable t) {
+
+            }
+        });
+    }
+
+    private void sendEndedNotification(String customerId) {
+
+        Notification notification = new Notification("Ended", "Your trip is ended! Please take patient to hospital");
+        Sender send = new Sender(customerId, notification);
+
+
+        mFCMService.sendMessage(send).enqueue(new Callback<FCMResponse>() {
+            @Override
+            public void onResponse(@NonNull Call<FCMResponse> call, @NonNull Response<FCMResponse> response) {
+
+            }
+
+            @Override
+            public void onFailure(Call<FCMResponse> call, Throwable t) {
+
+            }
+        });
+    }
+
 
     private void sendArrivedNotification(String customerId) {
 
@@ -302,6 +361,34 @@ public class DriverTracking extends FragmentActivity implements OnMapReadyCallba
         LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
     }
 
+    private void displayLocation(Location location, double lat, double lng) {
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+
+        if (location != null) {
+
+            final double latitude = location.getLatitude();
+            final double longitude = location.getLongitude();
+            if (driverMarker != null) {
+                driverMarker.remove();
+
+            }
+            driverMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title("you").icon(BitmapDescriptorFactory.defaultMarker()));
+
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), 17.0f));
+
+            if (direction != null) {
+                direction.remove();
+            }
+
+            getDirection(lat, lng);
+        } else {
+            Log.d("ERROR", "cannot display Location ");
+        }
+
+    }
+
 
     private void displayLocation() {
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -331,6 +418,44 @@ public class DriverTracking extends FragmentActivity implements OnMapReadyCallba
 
     }
 
+    private void getDirection(double lat, double lng) {
+
+        LatLng currentPosition = new LatLng(Common.mLastLocation.getLatitude(), Common.mLastLocation.getLongitude());
+
+        String requestApi = null;
+        try {
+            requestApi = "https://maps.googleapis.com/maps/api/directions/json?" +
+                    "mode=driving&" +
+                    "transit_routing_preference=less_driving&" +
+                    "origin=" + currentPosition.latitude + "," + currentPosition.longitude + "&" +
+                    "destination=" + lat + "," + lng + "&" +
+                    "key=" + getResources().getString(R.string.google_direction_api);
+
+
+            mService.getPath(requestApi).enqueue(new Callback<String>() {
+                @Override
+                public void onResponse(Call<String> call, Response<String> response) {
+                    try {
+
+                        new ParserTask().execute(response.body().toString());
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<String> call, Throwable throwable) {
+                    Toast.makeText(DriverTracking.this, "" + throwable.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+
+        }
+    }
+
+
     private void getDirection() {
 
         LatLng currentPosition = new LatLng(Common.mLastLocation.getLatitude(), Common.mLastLocation.getLongitude());
@@ -344,14 +469,13 @@ public class DriverTracking extends FragmentActivity implements OnMapReadyCallba
                     "destination=" + riderLat + "," + riderLng + "&" +
                     "key=" + getResources().getString(R.string.google_direction_api);
 
-            Log.d("SICKBAY", requestApi);
 
             mService.getPath(requestApi).enqueue(new Callback<String>() {
                 @Override
                 public void onResponse(Call<String> call, Response<String> response) {
                     try {
 
-                        new ParserTask().execute(response.body().toString());
+                        new ParserTask().execute(response.body());
 
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -388,7 +512,10 @@ public class DriverTracking extends FragmentActivity implements OnMapReadyCallba
     @Override
     public void onLocationChanged(Location location) {
         Common.mLastLocation = location;
-        displayLocation();
+        if (destination != null)
+            displayLocation(location, destination.getLat(), destination.getLng());
+        else
+            displayLocation();
         sendLocationUpdate(customerId, location);
     }
 

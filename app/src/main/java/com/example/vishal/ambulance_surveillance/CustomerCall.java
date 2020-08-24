@@ -167,7 +167,7 @@ public class CustomerCall extends AppCompatActivity {
                     "destination=" + lat + "," + lng + "&" +
                     "key=" + getResources().getString(R.string.google_direction_api);
 
-            Log.d("SICKBAY", requestApi);
+
 
             mServices.getPath(requestApi).enqueue(new Callback<String>() {
                 @Override
